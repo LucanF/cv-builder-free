@@ -1,0 +1,109 @@
+
+.cv-preview {
+    background-color: white;
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 2rem;
+  }
+  
+  .cv-preview-inner {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .cv-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eaeaea;
+  }
+  
+  .cv-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .cv-title {
+    font-size: 1.2rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .cv-contact {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .cv-contact span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .cv-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .cv-section-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .cv-item {
+    margin-bottom: 1rem;
+  }
+  
+  .cv-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+  
+  .cv-item-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  
+  .cv-item-subtitle {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .cv-item-dates {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .cv-item-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  
+  .cv-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .cv-skill {
+    background-color: #f0f8ff;
+    color: var(--primary-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }

@@ -1,0 +1,215 @@
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --light-color: #f4f6f9;
+    --dark-color: #2c3e50;
+    --text-color: #333;
+    --border-color: #ddd;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-color);
+  }
+  
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .app-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+  }
+  
+  main {
+    flex-grow: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  footer {
+    background-color: var(--dark-color);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+  }
+  
+  .cv-builder {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .cv-builder {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .cv-form {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+  }
+  
+  .cv-form-section {
+    margin-bottom: 2rem;
+  }
+  
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--dark-color);
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .btn-success {
+    background-color: var(--success-color);
+    color: white;
+  }
+  
+  .btn-success:hover {
+    background-color: #27ae60;
+  }
+  
+  .btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+  
+  .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .add-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--light-color);
+    padding: 0.5rem 1rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    color: var(--dark-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: fit-content;
+    margin: 1rem 0;
+  }
+  
+  .add-item-btn:hover {
+    background-color: #e9ecef;
+  }
+  
+  .item-list {
+    margin-bottom: 1rem;
+  }
+  
+  .item {
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+  }
+  
+  .item-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .export-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }

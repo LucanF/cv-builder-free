@@ -1,138 +1,173 @@
+import React from 'react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
-import React, { useRef } from 'react';
-import { usePDF } from 'react-to-pdf';
-
-const PDFExport = ({ cvData }) => {
-  const { toPDF, targetRef } = usePDF({
-    filename: `${cvData.personalInfo.firstName || 'CV'}_${cvData.personalInfo.lastName || 'Document'}.pdf`,
-    page: { margin: 15 }
-  });
+const PDFExport = ({ cvData, template }) => {
+  const exportPDF = async () => {
+    // Get the CV preview element
+    const input = document.getElementById('cv-preview');
+    if (!input) return;
+    
+    try {
+      // Show loading indicator
+      document.body.style.cursor = 'wait';
+      
+      // Create a hidden container for PDF rendering
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '-9999px';
+      container.style.width = '210mm'; // A4 width
+      document.body.appendChild(container);
+      
+      // Clone the preview
+      const clone = input.cloneNode(true);
+      clone.style.width = '100%';
+      clone.style.height = 'auto';
+      clone.style.position = 'static';
+      clone.style.boxShadow = 'none';
+      clone.style.borderRadius = '0';
+      clone.style.overflow = 'visible';
+      clone.style.transform = 'none';
+      clone.style.maxHeight = 'none';
+      
+      // Remove any hover effects
+      const hoverElements = clone.querySelectorAll('.cv-item, .cv-skill');
+      hoverElements.forEach(el => {
+        el.classList.remove('hover');
+        el.style.transform = 'none';
+        el.style.boxShadow = 'none';
+        el.style.transition = 'none';
+      });
+      
+      // Fix for watermark
+      const watermark = clone.querySelector('.cv-watermark');
+      if (watermark) watermark.style.opacity = '0.2';
+      
+      // Add special class for PDF styling
+      clone.classList.add('for-pdf-export');
+      
+      // Append to container
+      container.appendChild(clone);
+      
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Use html2canvas with better settings
+      const canvas = await html2canvas(clone, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: isDarkTemplate(template) ? '#0f172a' : '#ffffff',
+        logging: false,
+        removeContainer: false, // We'll handle cleanup manually
+        onclone: (clonedDoc) => {
+          // Additional adjustments can be made here if needed
+          const clonedElement = clonedDoc.querySelector('.for-pdf-export');
+          if (clonedElement) {
+            // Make sure dark text on light backgrounds and light text on dark backgrounds are preserved
+            if (isDarkTemplate(template)) {
+              ensureTextContrast(clonedElement, true);
+            } else {
+              ensureTextContrast(clonedElement, false);
+            }
+          }
+        }
+      });
+      
+      // Clean up the DOM
+      document.body.removeChild(container);
+      
+      // Create PDF with better quality
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+      
+      // Get PDF dimensions
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate ratio to fit on page
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      // Center the image on the page
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10; // Top margin
+      
+      // Add the image to the PDF
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // Create filename based on user's name
+      const fullName = `${cvData.personalInfo.firstName || ''} ${cvData.personalInfo.lastName || ''}`.trim();
+      const filename = fullName ? `${fullName.replace(/\s+/g, '_')}_CV.pdf` : 'CV_Document.pdf';
+      
+      // Save the PDF
+      pdf.save(filename);
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again or check console for details.');
+    } finally {
+      // Reset cursor
+      document.body.style.cursor = 'default';
+    }
+  };
   
+  // Helper function to determine if a template is dark
+  const isDarkTemplate = (template) => {
+    return ['tech', 'bold'].includes(template);
+  };
+  
+  // Helper function to ensure text has proper contrast
+  const ensureTextContrast = (element, isDark) => {
+    if (isDark) {
+      // For dark templates, make sure text is light colored
+      const textElements = element.querySelectorAll('div, span, p, h1, h2, h3, h4, h5, h6');
+      textElements.forEach(el => {
+        const style = window.getComputedStyle(el);
+        // Check if text color is dark
+        if (isColorDark(style.color)) {
+          // If it's dark text on dark background, make it light
+          el.style.color = '#ffffff';
+        }
+      });
+    } else {
+      // For light templates, make sure text is dark colored
+      const textElements = element.querySelectorAll('div, span, p, h1, h2, h3, h4, h5, h6');
+      textElements.forEach(el => {
+        const style = window.getComputedStyle(el);
+        // Check if text color is too light
+        if (!isColorDark(style.color) && style.color !== 'rgb(255, 255, 255)') {
+          // If it's light text on light background, make it dark
+          el.style.color = '#333333';
+        }
+      });
+    }
+  };
+  
+  // Helper to check if a color is dark
+  const isColorDark = (color) => {
+    // Parse RGB values
+    const rgb = color.match(/\d+/g);
+    if (!rgb || rgb.length < 3) return false;
+    
+    // Calculate brightness (simple formula)
+    const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+    
+    // Return true if color is dark (brightness < 128)
+    return brightness < 128;
+  };
+
   return (
-    <>
-      {/* Hidden div that will be converted to PDF */}
-      <div style={{ display: 'none' }}>
-        <div ref={targetRef} style={{ width: '210mm', padding: '15mm', fontFamily: 'Arial, sans-serif' }}>
-          {/* Header Section */}
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h1 style={{ margin: '0 0 5px', color: '#3498db', fontSize: '28px' }}>
-              {cvData.personalInfo.firstName} {cvData.personalInfo.lastName}
-            </h1>
-            {cvData.personalInfo.title && (
-              <h2 style={{ margin: '0 0 10px', color: '#2c3e50', fontSize: '18px', fontWeight: 'normal' }}>
-                {cvData.personalInfo.title}
-              </h2>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px', fontSize: '14px' }}>
-              {cvData.personalInfo.email && <span>{cvData.personalInfo.email}</span>}
-              {cvData.personalInfo.phone && <span>| {cvData.personalInfo.phone}</span>}
-              {cvData.personalInfo.address && <span>| {cvData.personalInfo.address}</span>}
-              {cvData.personalInfo.website && <span>| {cvData.personalInfo.website}</span>}
-            </div>
-          </div>
-
-          {/* Summary Section */}
-          {cvData.personalInfo.summary && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ borderBottom: '1px solid #eaeaea', paddingBottom: '5px', color: '#3498db' }}>
-                Professional Summary
-              </h3>
-              <p style={{ margin: '10px 0', lineHeight: '1.5', fontSize: '14px' }}>
-                {cvData.personalInfo.summary}
-              </p>
-            </div>
-          )}
-
-          {/* Work Experience Section */}
-          {cvData.workExperience.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ borderBottom: '1px solid #eaeaea', paddingBottom: '5px', color: '#3498db' }}>
-                Work Experience
-              </h3>
-              {cvData.workExperience.map((job) => (
-                <div key={job.id} style={{ marginBottom: '15px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <div>
-                      <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{job.position}</div>
-                      <div style={{ fontStyle: 'italic', fontSize: '14px' }}>
-                        {job.company}{job.location && `, ${job.location}`}
-                      </div>
-                    </div>
-                    <div style={{ fontSize: '14px', color: '#777' }}>
-                      {job.startDate} - {job.endDate || 'Present'}
-                    </div>
-                  </div>
-                  {job.description && (
-                    <p style={{ margin: '5px 0', fontSize: '14px', lineHeight: '1.5' }}>
-                      {job.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Education Section */}
-          {cvData.education.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ borderBottom: '1px solid #eaeaea', paddingBottom: '5px', color: '#3498db' }}>
-                Education
-              </h3>
-              {cvData.education.map((edu) => (
-                <div key={edu.id} style={{ marginBottom: '15px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <div>
-                      <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                        {edu.degree}{edu.fieldOfStudy && ` in ${edu.fieldOfStudy}`}
-                      </div>
-                      <div style={{ fontStyle: 'italic', fontSize: '14px' }}>{edu.institution}</div>
-                    </div>
-                    <div style={{ fontSize: '14px', color: '#777' }}>
-                      {edu.startDate} - {edu.endDate || 'Present'}
-                    </div>
-                  </div>
-                  {edu.description && (
-                    <p style={{ margin: '5px 0', fontSize: '14px', lineHeight: '1.5' }}>
-                      {edu.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Skills Section */}
-          {cvData.skills.length > 0 && (
-            <div>
-              <h3 style={{ borderBottom: '1px solid #eaeaea', paddingBottom: '5px', color: '#3498db' }}>
-                Skills
-              </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '10px 0' }}>
-                {cvData.skills.map((skill) => (
-                  <span
-                    key={skill.id}
-                    style={{
-                      backgroundColor: '#f0f8ff',
-                      color: '#3498db',
-                      padding: '5px 10px',
-                      borderRadius: '4px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Export Button */}
-      <button onClick={() => toPDF()} className="btn btn-success">
-        Export as PDF
-      </button>
-    </>
+    <button onClick={exportPDF} className="btn btn-primary">
+      Export as PDF
+    </button>
   );
 };
 

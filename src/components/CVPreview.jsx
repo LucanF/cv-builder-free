@@ -1,26 +1,56 @@
-
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faPhone, faMapMarkerAlt, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import '../styles/cv-styles.css';
 
-const CVPreview = ({ cvData }) => {
+const CVPreview = ({ cvData, template = 'classic' }) => {
   const { personalInfo, education, workExperience, skills } = cvData;
-
+  
+  const fullName = `${personalInfo.firstName || ''} ${personalInfo.lastName || ''}`.trim() || 'Your Name';
+  
+  // Helper function to render icons using emoji for compatibility
+  const renderIcon = (iconName) => {
+    switch(iconName) {
+      case 'email': return '✉️ ';
+      case 'phone': return '📱 ';
+      case 'location': return '📍 ';
+      case 'website': return '🌐 ';
+      default: return '';
+    }
+  };
+  
   return (
-    <div className="cv-preview" id="cv-preview">
+    <div className={`cv-preview template-${template}`} id="cv-preview">
       <div className="cv-preview-inner">
         {/* Header Section */}
         <div className="cv-header">
-          <div className="cv-name">
-            {personalInfo.firstName || personalInfo.lastName
-              ? `${personalInfo.firstName} ${personalInfo.lastName}`
-              : 'Your Name'}
-          </div>
+          <div className="cv-name">{fullName}</div>
           {personalInfo.title && <div className="cv-title">{personalInfo.title}</div>}
           <div className="cv-contact">
-            {personalInfo.email && <span>{personalInfo.email}</span>}
-            {personalInfo.phone && <span>{personalInfo.phone}</span>}
-            {personalInfo.address && <span>{personalInfo.address}</span>}
-            {personalInfo.website && <span>{personalInfo.website}</span>}
+            {personalInfo.email && (
+              <span>
+                {renderIcon('email')}
+                {personalInfo.email}
+              </span>
+            )}
+            {personalInfo.phone && (
+              <span>
+                {renderIcon('phone')}
+                {personalInfo.phone}
+              </span>
+            )}
+            {personalInfo.address && (
+              <span>
+                {renderIcon('location')}
+                {personalInfo.address}
+              </span>
+            )}
+            {personalInfo.website && (
+              <span>
+                {renderIcon('website')}
+                {personalInfo.website}
+              </span>
+            )}
           </div>
         </div>
 
@@ -97,6 +127,11 @@ const CVPreview = ({ cvData }) => {
             </div>
           </div>
         )}
+        
+        {/* Watermark for free version */}
+        <div className="cv-watermark">
+          Created with CV Builder Free
+        </div>
       </div>
     </div>
   );
